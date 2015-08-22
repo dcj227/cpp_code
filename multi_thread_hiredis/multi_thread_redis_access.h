@@ -13,12 +13,14 @@
 #include <string>
 #include <vector>
 
+#include <boost/pthread.h>
 #include <hiredis.h>
 
 namespace mhiredis {
 
 enum MHIREDIS_T {
-  MH_SUCCESS = 0
+  MH_SUCCESS = 0,
+  MH_NOT_INIT
 }
 
 class MHiRedis {
@@ -41,9 +43,9 @@ class MHiRedis {
    * return:
    *        refference to MHIREDIS_T enum.
    */
-  MHIREDIS_T initialize(const std::string& host, const int port,
-                        const std::sting& passwd, const int db,
-                        const int timeout, const bool is_non_block);
+  MHIREDIS_T initialize(
+      const std::string& host, const int port, const std::sting& passwd,
+      const int db, const int timeout, const bool is_non_block);
 
   /*
    * describe: free redis resource and close connection.
@@ -78,36 +80,35 @@ class MHiRedis {
    * describe: execute a non get command to redis server.
    * parameters:
    *        command:    command to execute.
-   *        reply_int:  reply from redis server.
+   *        reply_intager:  reply from redis server.
    * return:
    *        refference to MHIREDIS_T enum.
    */
-  MHIREDIS_T execCommand(const std::string& command, long long* reply_int);
+  MHIREDIS_T execCommand(const std::string& command, long long* reply_intager);
 
   /*
    * describe: execute multi command atomic.
    * parameters:
    *        commands:   commands to execute.
    *        reply_list: 
-   *        reply_int:
+   *        reply_intager:
    * return:
    *        refference to MHIREDIS_T enum.
    */
-  MHIREDIS_T execCommands(const std::vector<std::string>& commands,
-                          std::vector<std::string>* reply_list,
-                          long long* reply_int);
+  MHIREDIS_T execCommands(
+      const std::vector<std::string>& commands,
+      std::vector<std::string>* reply_list, long long* reply_intager);
   
  private:
-  
-
-
-  std::string     redis_host_;
+  std::string     host_;
   int             port_;
   int             timeout_;
   std::string     password_;
   int             db_;
-};
 
+  redisContext*   context_;
+  boost::mutex    context_mutex_;
+};
 
 }  // namespace multiredis
 
