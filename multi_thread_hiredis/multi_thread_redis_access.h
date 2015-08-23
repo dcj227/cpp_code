@@ -20,7 +20,9 @@ namespace mhiredis {
 
 enum MHIREDIS_T {
   MH_SUCCESS = 0,
-  MH_NOT_INIT
+  MH_NOT_INIT,
+  MH_CONNECT_RET_NULL,
+  MH_CONNECT_ERROR
 }
 
 class MHiRedis {
@@ -38,14 +40,30 @@ class MHiRedis {
    *        port:     redis server's port num.
    *        passwd:   redis server's password.
    *        db:       db num in redis server to select.
-   *        timeout:  connection timeout.
-   *        is_non_block:   set connection's block flag.
    * return:
    *        refference to MHIREDIS_T enum.
    */
   MHIREDIS_T initialize(
       const std::string& host, const int port, const std::sting& passwd,
+      const int db);
+
+  /*
+   * describe: initialize MHiRedis's members and connect to redis server.
+   * parameters:
+   *        host:     redis server's host address or ip address.
+   *        port:     redis server's port num.
+   *        passwd:   redis server's password.
+   *        db:       db num in redis server to select.
+   *        timeout:  connection timeout.
+   *        is_non_block:   set connection's block flag.
+   * return:
+   *        refference to MHIREDIS_T enum.
+   */
+  /*
+  MHIREDIS_T initialize(
+      const std::string& host, const int port, const std::sting& passwd,
       const int db, const int timeout, const bool is_non_block);
+      */
 
   /*
    * describe: free redis resource and close connection.
@@ -100,14 +118,19 @@ class MHiRedis {
       std::vector<std::string>* reply_list, long long* reply_intager);
   
  private:
+  MHIREDIS_T connectToRedis(const std::string& host, const int port,
+                            const std::sting& password, const int db);
+
   std::string     host_;
   int             port_;
-  int             timeout_;
   std::string     password_;
   int             db_;
+  // int             timeout_;
+  // bool            is_block_;
 
   redisContext*   context_;
   boost::mutex    context_mutex_;
+
 };
 
 }  // namespace multiredis
