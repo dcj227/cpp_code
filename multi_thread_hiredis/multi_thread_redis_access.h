@@ -118,8 +118,12 @@ class MHiRedis {
       std::vector<std::string>* reply_list, long long* reply_intager);
   
  private:
-  MHIREDIS_T connectToRedis(const std::string& host, const int port,
-                            const std::sting& password, const int db);
+  MHIREDIS_T connect(const std::string& host, const int port,
+                     const std::sting& password, const int db);
+
+  MHIREDIS_T doCommand(const std::string& command, redisReply** reply);
+  MHIREDIS_T doCommands(const std::vector<std::string>& commands,
+                      redisReply** reply);
 
   std::string     host_;
   int             port_;

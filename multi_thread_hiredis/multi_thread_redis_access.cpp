@@ -8,6 +8,8 @@
 
 #include "multi_thread_redis_access.h"
 
+#include <boost/smart_ptr.hpp>
+
 namespace mredis {
 
 MHiRedis::MHiRedis() : context_(NULL) , host_(""), port_(0), password_(""), 
@@ -24,21 +26,8 @@ MHIREDIS_T MHiRedis::initialize(const std::string& host_ip, const int port,
   passwd_ = password;
   db_ = db;
       
-  context_ = redisConnect(host_ip_.c_str(), port_);
-
-  if (!context_) {
-    cleanUp();
-    return MH_CONNECT_RET_NULL;
-  }
-
-  if (context_->err != 0) {
-    // log errstr
-
-    cleanUp();
-    return MH_CONNECT_ERROR;
-  } 
-
-  return MH_SUCCESS;
+  MHIREDIS_T ret = connect(host_ip_, port_, passwd_, db_);
+  return ret;
 }
 
 MHIREDIS_T MHiRedis::cleanUp() {
@@ -60,6 +49,16 @@ MHIREDIS_T MHiRedis::getString(
     return MH_NOT_INIT;
   }
 
+  MHIREDIS_T ret = MH_SUCCESS;
+  redisReply* reply = NULL;
+  boost::shared_ptr<redisReply> tmp((void*)NULL, freeReplyObject);
+  ret = doCommand(command, &reply);
+  if (ret != MH_SUCCESS) {
+    return ret;
+  }
+
+     
+  
   return MH_SUCCESS;
 }
 
@@ -86,6 +85,34 @@ MHIREDIS_T MHiRedis::execCommands(
     return MH_NOT_INIT;
   }
   return MH_SUCCESS;
+}
+
+MHIREDIS_T MHiRedis::connect(const std::string& host, const int port,
+                             const std::sting& password, const int db) {
+  context_ = redisConnect(host_ip_.c_str(), port_);
+
+  if (!context_) {
+    cleanUp();
+    return MH_CONNECT_RET_NULL;
+  }
+
+  if (context_->err != 0) {
+    // log errstr
+
+    cleanUp();
+    return MH_CONNECT_ERROR;
+  } 
+
+  return MH_SUCCESS;
+}
+
+MHIREDIS_T MHiRedis::command(const std::string& command, redisReply* reply) {
+}
+
+MHIREDIS_T MHiRedis::commands(const std::vector<std::string>& commands,
+                              redisReply* reply) {
+
+
 }
 
 }  // namespace mredis
