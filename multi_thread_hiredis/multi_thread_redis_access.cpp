@@ -52,11 +52,13 @@ MHIREDIS_T MHiRedis::getString(
   MHIREDIS_T ret = MH_SUCCESS;
   redisReply* reply = NULL;
   boost::shared_ptr<redisReply> tmp((void*)NULL, freeReplyObject);
+
   ret = doCommand(command, &reply);
   if (ret != MH_SUCCESS) {
     return ret;
   }
-
+  
+   
      
   
   return MH_SUCCESS;
