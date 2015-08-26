@@ -20,9 +20,12 @@ namespace mhiredis {
 
 enum MHIREDIS_T {
   MH_SUCCESS = 0,
+  MH_ERROR,
+  MH_PARAMETER_ERROR,
   MH_NOT_INIT,
   MH_CONNECT_RET_NULL,
-  MH_CONNECT_ERROR
+  MH_CONNECT_ERROR,
+  MH_AUTH_FAILED
 }
 
 class MHiRedis {
@@ -81,7 +84,7 @@ class MHiRedis {
    * return:
    *        refference to MHIREDIS_T enum.
    */
-  MHIREDIS_T getString(const std::sting& command, std::string* reply_str);
+  MHIREDIS_T getItem(const std::sting& command, std::string* reply_str);
 
   /*
    * describe: get array replys from redis server.

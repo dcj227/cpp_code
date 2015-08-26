@@ -43,8 +43,12 @@ MHIREDIS_T MHiRedis::cleanUp() {
   timeout_  = 0;
 }
 
-MHIREDIS_T MHiRedis::getString(
+MHIREDIS_T MHiRedis::getItem(
     const std::string& command, std::string* reply_str) {
+  if (!reply_str) {
+    return MH_PARAMETER_ERROR;
+  }
+
   if (!context_) {
     return MH_NOT_INIT;
   }
@@ -57,18 +61,37 @@ MHIREDIS_T MHiRedis::getString(
   if (ret != MH_SUCCESS) {
     return ret;
   }
-  
-   
-     
+
+  if (reply && reply->str) {
+    (*reply_str).assign(reply->str, reply->len);
+  }
   
   return MH_SUCCESS;
 }
 
 MHIREDIS_T MHiRedis::getArray(
     const std::string& command, std::vector<std::string>* reply_list) {
+  if (!reply_list) {
+    return MH_PARAMETER_ERROR;
+  }
+
   if (!context_) {
     return MH_NOT_INIT;
   }
+
+  MHIREDIS_T ret = MH_SUCCESS;
+  redisReply* reply = NULL;
+  boost::shared_ptr<redisReply> tmp((void*)NULL, freeReplyObject);
+
+  ret = doCommand(command, &reply);
+  if (ret != MH_SUCCESS) {
+    return ret;
+  }
+
+  if (reply->type != REDIS_REPLY_ARRAY) {
+  }    
+   
+
   return MH_SUCCESS;
 }
 
@@ -104,6 +127,18 @@ MHIREDIS_T MHiRedis::connect(const std::string& host, const int port,
     cleanUp();
     return MH_CONNECT_ERROR;
   } 
+
+  std::string auth_comm = "AUTH " + password;
+  MHIREDIS_T ret = execCommand(auth_comm, NULL);
+  if (ret != MH_SUCCESS) {
+    return MH_AUTH_FAILED;
+  }
+
+  std::string sel_comm = "SELECT " + itoa(db);
+  ret = execCommand(sel_comm, NULL);
+  if (ret != MH_SUCCESS) {
+    return MH_SEL_FAILED;
+  }
 
   return MH_SUCCESS;
 }
