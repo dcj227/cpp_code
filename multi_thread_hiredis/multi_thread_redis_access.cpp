@@ -89,6 +89,7 @@ MHIREDIS_T MHiRedis::getArray(
   }
 
   if (reply->type != REDIS_REPLY_ARRAY) {
+    return; 
   }    
    
 
@@ -127,11 +128,12 @@ MHIREDIS_T MHiRedis::connect(const std::string& host, const int port,
     cleanUp();
     return MH_CONNECT_ERROR;
   } 
-
-  std::string auth_comm = "AUTH " + password;
-  MHIREDIS_T ret = execCommand(auth_comm, NULL);
-  if (ret != MH_SUCCESS) {
-    return MH_AUTH_FAILED;
+  if (!passwork.emply()) {
+    std::string auth_comm = "AUTH " + password;
+    MHIREDIS_T ret = execCommand(auth_comm, NULL);
+    if (ret != MH_SUCCESS) {
+      return MH_AUTH_FAILED;
+    }
   }
 
   std::string sel_comm = "SELECT " + itoa(db);
