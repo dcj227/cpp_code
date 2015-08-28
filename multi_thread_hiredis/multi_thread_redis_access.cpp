@@ -93,6 +93,8 @@ MHIREDIS_T MHiRedis::getArray(
   }    
    
 
+
+
   return MH_SUCCESS;
 }
 
